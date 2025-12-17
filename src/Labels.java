@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Labels {
@@ -13,6 +14,8 @@ public class Labels {
                     }
                 }
             }
+            List<String> naughtyWords = Arrays.asList("SEX", "ASS", "FUK", "DIC", "COC", "CUM", "FAG", "NIG", "END");
+            unshuffledLabels.removeAll(naughtyWords);
         }
 
         public List<String> getUnshuffledLabels() {

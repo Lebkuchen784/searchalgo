@@ -3,8 +3,8 @@ import java.util.stream.Collectors;
 
 public class Main {
     static Random rnd = new Random();
-    public static int graphSize = 32;
-    public static int lookoutWindow = 8;
+    public static int graphSize = 64;
+    public static int lookoutWindow = 16;
 
     // Randomized lookout window
     // public static int lookoutWindow = rnd.nextInt(graphSize / 4) + 1;
@@ -122,6 +122,9 @@ public class Main {
 
         priorityQueue.offer(startNode);
 
+        // Benchmark start
+        long startTime = System.nanoTime();
+
         // Dijkstra
         while (!priorityQueue.isEmpty()) {
             Node currentNode = priorityQueue.poll();
@@ -145,6 +148,9 @@ public class Main {
             }
         }
 
+        // Benchmark end
+        long endTime = System.nanoTime();
+
         Node destination = nodesList.getLast();
 
         List<String> shortestPath = new ArrayList<>();
@@ -158,7 +164,6 @@ public class Main {
 
         Collections.reverse(shortestPath);
 
-        /*
         System.out.print("Shortest path: ");
         for (int i = 0; i < shortestPath.size(); ++i) {
             System.out.print(shortestPath.get(i));
@@ -167,7 +172,7 @@ public class Main {
             }
         }
         System.out.println();
-        */
+        System.out.println("Finding the shortest path took: " + (endTime - startTime) / 1_000_000.0 + " ms.");
 
         dotMaker DOT = new dotMaker(nodesList, shortestPath);
         DOT.generateDotOutput();

@@ -2,13 +2,13 @@ import java.util.HashSet;
 
 public class Node {
     private final String label;
-    private Node previous = null;
+    private Node previous;
     private final HashSet<Edge> forwardEdges;
 
     public Node(String label) {
         this.label = label;
         this.previous = null;
-        this.forwardEdges = new HashSet<Edge>();
+        this.forwardEdges = new HashSet<>();
     }
 
     public void connect(String connectionPair, long weight) {
@@ -56,7 +56,7 @@ public class Node {
         if (previous != null) {
             output.append(" The previous node in the shortest path is ").append(this.previous);
         } else {
-            output.append(" The start node has no previous nodes.");
+            output.append(" This node has no previous nodes after the shortest path algorithm has been ran.");
         }
         return output.toString();
     }
