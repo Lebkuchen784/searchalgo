@@ -3,8 +3,8 @@ import java.util.stream.Collectors;
 
 public class Main {
     static Random rnd = new Random();
-    public static int graphSize = 8;
-    public static int lookoutWindow = 4;
+    public static int graphSize = 32;
+    public static int lookoutWindow = 8;
 
     // Randomized lookout window
     // public static int lookoutWindow = rnd.nextInt(graphSize / 4) + 1;
@@ -15,13 +15,9 @@ public class Main {
         // -------------------------------
         // -------------------------------
 
-        // 676 unique combinations
-        List<String> labelsArrayList = new ArrayList<>();
-        for (char a1 = 'A'; a1 <= 'Z'; ++a1) {
-            for (char a2 = 'A'; a2 <= 'Z'; ++a2) {
-                labelsArrayList.add("" + a1 + a2);
-            }
-        }
+        // Generate and save the labels
+        Labels labels = new Labels();
+        List<String> labelsArrayList = labels.getUnshuffledLabels();
 
         Collections.shuffle(labelsArrayList);
 
@@ -29,11 +25,9 @@ public class Main {
 
         Node startNode = new Node("START");
         nodesList.add(startNode);
-
         for (int i = 0; i < graphSize - 2; ++i) {
             nodesList.add(new Node(labelsArrayList.get(i)));
         }
-
         Node endNode = new Node("END");
         nodesList.add(endNode);
 
@@ -53,9 +47,7 @@ public class Main {
                     targets.add(i + j);
             }
 
-            if (targets.isEmpty()) throw new RuntimeException("The targets set is somehow empty again (not 'END')." +
-                    " " +
-                    "Try messing with 'if (i + j < nodesList.size())'");
+            if (targets.isEmpty()) throw new RuntimeException("The targets set is somehow empty again (not 'END').");
 
             for (int target : targets) {
                 nodesList.get(i).connect(nodesList.get(target).getLabel(), rnd.nextInt(100 - 20) + 20);
