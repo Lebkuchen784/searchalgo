@@ -3,7 +3,7 @@ import java.util.stream.Collectors;
 
 public class Main {
     static Random rnd = new Random();
-    public static int graphSize = 64;
+    public static int graphSize = 10240;
     public static int lookoutWindow = 16;
 
     // Randomized lookout window
@@ -39,6 +39,8 @@ public class Main {
         Set<Integer> targets = new HashSet<>();
         for (int i = 0; i < nodesList.size() - 1; ++i) {
             targets.clear();
+            // Generates a bound randomized lookout window for every node instead of a fixed number for all
+            lookoutWindow = rnd.nextInt(graphSize / 4) + 1;
             for (int j = 1; j <= lookoutWindow; ++j) {
                 // <= lookoutWindow and not < lookoutWindow because when the lookout window is exactly 1,
                 // the graph becomes a one element chain and targets.add() right below does not get called
@@ -174,7 +176,7 @@ public class Main {
         System.out.println();
         System.out.println("Finding the shortest path took: " + (endTime - startTime) / 1_000_000.0 + " ms.");
 
-        dotMaker DOT = new dotMaker(nodesList, shortestPath);
-        DOT.generateDotOutput();
+        // dotMaker DOT = new dotMaker(nodesList, shortestPath);
+        // DOT.generateDotOutput();
     }
 }
