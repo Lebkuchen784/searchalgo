@@ -3,17 +3,15 @@ import java.util.stream.Collectors;
 
 public class Main {
     static Random rnd = new Random();
-    public static int graphSize = 10240;
-    public static int lookoutWindow = 16;
-
-    // Randomized lookout window
-    // public static int lookoutWindow = rnd.nextInt(graphSize / 4) + 1;
 
     static void main(String[] args) {
         // --- SETUP & NODE GENERATION ---
         // -------------------------------
         // -------------------------------
         // -------------------------------
+
+        int graphSize = Integer.parseInt(args[0]);
+        int lookoutWindow;
 
         // Generate and save the labels
         Labels labels = new Labels();
