@@ -10,7 +10,10 @@ public class Main {
         // -------------------------------
         // -------------------------------
 
-        int graphSize = Integer.parseInt(args[0]);
+        // 1 = Basic search
+        // 2 = Dijkstra
+        int strategy = Integer.parseInt(args[0]);
+        int graphSize = Integer.parseInt(args[1]);
         int lookoutWindow;
 
         // Generate and save the labels
@@ -54,127 +57,140 @@ public class Main {
             }
         }
 
-        // -------- SHORTEST PATH --------
-        // -----------not really----------
+        long startTime;
+        long endTime;
+        List<String> shortestPath = new ArrayList<>();
+
+        // ---- FINDING THE SHORTEST -----
+        // -------------PATH--------------
         // -------------------------------
         // -------------------------------
 
-        // Stupid
-        /*
-        StringBuilder path = new StringBuilder("Shortest path (probably not): ");
-        String nextNodeLabel = "START";
-        do {
-            int targetNodePosition = 0;
-            if (!nextNodeLabel.equals("START")) {
-                String finalNextNodeLabel = nextNodeLabel;
-                List<Node> targetNodes = nodesList
-                        .stream()
-                        .filter(n -> n.getLabel().contains(finalNextNodeLabel))
-                        .toList();
-                targetNodePosition = nodesList.indexOf(targetNodes.getFirst());
-            }
-            HashSet<Edge> edges = nodesList.get(targetNodePosition).getForwardEdges();
-            Edge[] edgesArray = edges.toArray(new Edge[0]);
-            Edge minWeight = edgesArray[0];
-            for (int j = 1; j < edges.size(); ++j) {
-                if (edgesArray[j].weight() < minWeight.weight()) {
-                    minWeight = edgesArray[j];
+        switch (strategy) {
+            case 1:
+                StringBuilder path = new StringBuilder("Shortest path (not): ");
+                String nextNodeLabel = "START";
+
+                // Benchmark start
+                startTime = System.nanoTime();
+
+                do {
+                    int targetNodePosition = 0;
+                    if (!nextNodeLabel.equals("START")) {
+                        String finalNextNodeLabel = nextNodeLabel;
+                        List<Node> targetNodes = nodesList
+                                .stream()
+                                .filter(n -> n.getLabel().contains(finalNextNodeLabel))
+                                .toList();
+                        targetNodePosition = nodesList.indexOf(targetNodes.getFirst());
+                    }
+                    HashSet<Edge> edges = nodesList.get(targetNodePosition).getForwardEdges();
+                    Edge[] edgesArray = edges.toArray(new Edge[0]);
+                    Edge minWeight = edgesArray[0];
+                    for (int j = 1; j < edges.size(); ++j) {
+                        if (edgesArray[j].weight() < minWeight.weight()) {
+                            minWeight = edgesArray[j];
+                        }
+                    }
+                    path.append(nextNodeLabel).append(":").append(minWeight.weight()).append("->");
+                    nextNodeLabel = minWeight.destination();
+                } while (!nextNodeLabel.equals("END"));
+
+                // Benchmark start
+                endTime =  System.nanoTime();
+
+                path.append("END");
+                System.out.println(path);
+                System.out.println("Finding the shortest path took " + (endTime - startTime) / 1_000_000.0 + " ms.");
+                break;
+
+            case 2:
+                // Holds the shortest distance for each node to the START node
+                Map<Node, Long> distanceMap = new HashMap<>();
+
+                // Converting the nodesList into a Map for a faster lookup
+                Map<String, Node> nodesMap =
+                        nodesList.stream()
+                                .collect(Collectors.toMap(
+                                        Node::getLabel,
+                                        node -> node
+                                ));
+
+                // A set for all visited nodes to check against
+                Set<Node> visited = new HashSet<>();
+
+                // Some arbitrary value to denote infinity
+                long infDistance = 999999999;
+
+                // Initialize the map with the infinite values, add the start node
+                // with distance value 0 (long)
+                distanceMap.put(startNode, 0L);
+
+                for (int i = 1; i < nodesList.size(); ++i) {
+                    distanceMap.put(nodesList.get(i), infDistance);
                 }
-            }
-            path.append(nextNodeLabel).append(":").append(minWeight.weight()).append("->");
-            nextNodeLabel = minWeight.destination();
-        } while (!nextNodeLabel.equals("END"));
-        path.append("END");
-        System.out.println(path);
-        */
 
-        // -------- SHORTEST PATH --------
-        // ------------DIJKSTRA-----------
-        // -------------------------------
-        // -------------------------------
+                PriorityQueue<Node> priorityQueue = new PriorityQueue<>(Comparator.comparingLong(distanceMap::get));
 
-        // Holds the shortest distance for each node to the START node
-        Map<Node, Long> distanceMap = new HashMap<>();
+                priorityQueue.offer(startNode);
 
-        // Converting the nodesList into a Map for a faster lookup
-        Map<String, Node> nodesMap =
-                nodesList.stream()
-                        .collect(Collectors.toMap(
-                                Node::getLabel,
-                                node -> node
-                        ));
+                // Benchmark start
+                startTime = System.nanoTime();
 
-        // A set for all visited nodes to check against
-        Set<Node> visited = new HashSet<>();
+                // Dijkstra
+                while (!priorityQueue.isEmpty()) {
+                    Node currentNode = priorityQueue.poll();
+                    if (visited.contains(currentNode) || currentNode.getLabel().equals("END")) {
+                        continue;
+                    }
 
-        // Some arbitrary value to denote infinity
-        long infDistance = 999999999;
+                    for (Edge edge : currentNode.getForwardEdges()) {
+                        Node connectedNode = nodesMap.get(edge.destination());
 
-        // Initialize the map with the infinite values, add the start node
-        // with distance value 0 (long)
-        distanceMap.put(startNode, 0L);
+                        if (!visited.contains(connectedNode)) {
+                            long newDistance = distanceMap.get(currentNode) + edge.weight();
 
-        for (int i = 1; i < nodesList.size(); ++i) {
-            distanceMap.put(nodesList.get(i), infDistance);
-        }
+                            if (newDistance < distanceMap.get(connectedNode)) {
+                                distanceMap.put(connectedNode, newDistance);
+                                connectedNode.setPrevious(currentNode);
+                                priorityQueue.offer(connectedNode);
+                            }
+                        }
+                    }
+                    visited.add(currentNode);
+                }
 
-        PriorityQueue<Node> priorityQueue = new PriorityQueue<>(Comparator.comparingLong(distanceMap::get));
+                // Benchmark end
+                endTime = System.nanoTime();
 
-        priorityQueue.offer(startNode);
+                Node destination = nodesList.getLast();
+                Node current = destination;
 
-        // Benchmark start
-        long startTime = System.nanoTime();
+                while (!current.getLabel().equals("START")) {
+                    shortestPath.add(current.getLabel());
+                    current = current.getPrevious();
+                }
+                shortestPath.add("START");
 
-        // Dijkstra
-        while (!priorityQueue.isEmpty()) {
-            Node currentNode = priorityQueue.poll();
-            if (visited.contains(currentNode) || currentNode.getLabel().equals("END")) {
-                continue;
-            }
+                Collections.reverse(shortestPath);
 
-            for (Edge edge : currentNode.getForwardEdges()) {
-                Node connectedNode = nodesMap.get(edge.destination());
-
-                if (!visited.contains(connectedNode)) {
-                    long newDistance = distanceMap.get(currentNode) + edge.weight();
-
-                    if (newDistance < distanceMap.get(connectedNode)) {
-                        distanceMap.put(connectedNode, newDistance);
-                        connectedNode.setPrevious(currentNode);
-                        priorityQueue.offer(connectedNode);
+                System.out.print("Shortest path: ");
+                for (int i = 0; i < shortestPath.size(); ++i) {
+                    System.out.print(shortestPath.get(i));
+                    if (i < shortestPath.size() - 1) {
+                        System.out.print("->");
                     }
                 }
-            }
-            visited.add(currentNode);
+                System.out.println();
+                System.out.println("Finding the shortest path took " + (endTime - startTime) / 1_000_000.0 + " ms.");
+                break;
+
+            default:
+                throw new RuntimeException("Invalid strategy " + strategy);
         }
 
-        // Benchmark end
-        long endTime = System.nanoTime();
-
-        Node destination = nodesList.getLast();
-
-        List<String> shortestPath = new ArrayList<>();
-        Node current = destination;
-
-        while (!current.getLabel().equals("START")) {
-            shortestPath.add(current.getLabel());
-            current = current.getPrevious();
-        }
-        shortestPath.add("START");
-
-        Collections.reverse(shortestPath);
-
-        System.out.print("Shortest path: ");
-        for (int i = 0; i < shortestPath.size(); ++i) {
-            System.out.print(shortestPath.get(i));
-            if (i < shortestPath.size() - 1) {
-                System.out.print("->");
-            }
-        }
-        System.out.println();
-        System.out.println("Finding the shortest path took " + (endTime - startTime) / 1_000_000.0 + " ms.");
-
-        // dotMaker DOT = new dotMaker(nodesList, shortestPath);
-        // DOT.generateDotOutput();
+        dotMaker DOT = new dotMaker(nodesList, shortestPath);
+        DOT.generateDotOutput();
     }
 }
+
