@@ -10,10 +10,12 @@ public class Main {
         // -------------------------------
         // -------------------------------
 
-        // 1 = Basic search
+        // Strategy:
+        // 1 = Basic (breadth-first?) search
         // 2 = Dijkstra
         int strategy = Integer.parseInt(args[0]);
         int graphSize = Integer.parseInt(args[1]);
+        int graphVizOutput = Integer.parseInt(args[2]);
         int lookoutWindow;
 
         // Generate and save the labels
@@ -53,7 +55,7 @@ public class Main {
             if (targets.isEmpty()) throw new RuntimeException("The targets set is somehow empty again (not 'END').");
 
             for (int target : targets) {
-                nodesList.get(i).connect(nodesList.get(target).getLabel(), rnd.nextInt(100 - 20) + 20);
+                nodesList.get(i).connect(nodesList.get(target).getLabel(), rnd.nextInt(80) + 20);
             }
         }
 
@@ -96,7 +98,7 @@ public class Main {
                     nextNodeLabel = minWeight.destination();
                 } while (!nextNodeLabel.equals("END"));
 
-                // Benchmark start
+                // Benchmark end
                 endTime =  System.nanoTime();
 
                 path.append("END");
@@ -163,8 +165,7 @@ public class Main {
                 // Benchmark end
                 endTime = System.nanoTime();
 
-                Node destination = nodesList.getLast();
-                Node current = destination;
+                Node current = nodesList.getLast();
 
                 while (!current.getLabel().equals("START")) {
                     shortestPath.add(current.getLabel());
@@ -189,8 +190,9 @@ public class Main {
                 throw new RuntimeException("Invalid strategy " + strategy);
         }
 
-        dotMaker DOT = new dotMaker(nodesList, shortestPath);
-        DOT.generateDotOutput();
+        if (graphVizOutput == 1) {
+            dotMaker DOT = new dotMaker(nodesList, shortestPath);
+            DOT.generateDotOutput();
+        }
     }
 }
-
