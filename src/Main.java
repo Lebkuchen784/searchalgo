@@ -131,7 +131,6 @@ public class Main {
             if (visited.contains(currentNode) || currentNode.getLabel().equals("END")) {
                 continue;
             }
-            visited.add(currentNode);
 
             for (Edge edge : currentNode.getForwardEdges()) {
                 Node connectedNode = nodesMap.get(edge.destination());
@@ -146,6 +145,7 @@ public class Main {
                     }
                 }
             }
+            visited.add(currentNode);
         }
 
         // Benchmark end
@@ -172,7 +172,7 @@ public class Main {
             }
         }
         System.out.println();
-        System.out.println("Finding the shortest path took: " + (endTime - startTime) / 1_000_000.0 + " ms.");
+        System.out.println("Finding the shortest path took " + (endTime - startTime) / 1_000_000.0 + " ms.");
 
         // dotMaker DOT = new dotMaker(nodesList, shortestPath);
         // DOT.generateDotOutput();
