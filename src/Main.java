@@ -5,11 +5,6 @@ public class Main {
     static Random rnd = new Random();
 
     static void main(String[] args) {
-        // --- SETUP & NODE GENERATION ---
-        // -------------------------------
-        // -------------------------------
-        // -------------------------------
-
         // Strategy:
         // 1 = Basic (breadth-first?) search
         // 2 = Dijkstra
@@ -35,9 +30,6 @@ public class Main {
         nodesList.add(endNode);
 
         // ---- CONNECTING THE NODES -----
-        // -------------------------------
-        // -------------------------------
-        // -------------------------------
 
         Set<Integer> targets = new HashSet<>();
         for (int i = 0; i < nodesList.size() - 1; ++i) {
@@ -65,8 +57,6 @@ public class Main {
 
         // ---- FINDING THE SHORTEST -----
         // -------------PATH--------------
-        // -------------------------------
-        // -------------------------------
 
         switch (strategy) {
             case 1:
@@ -99,7 +89,7 @@ public class Main {
                 } while (!nextNodeLabel.equals("END"));
 
                 // Benchmark end
-                endTime =  System.nanoTime();
+                endTime = System.nanoTime();
 
                 path.append("END");
                 System.out.println(path);
@@ -121,8 +111,8 @@ public class Main {
                 // A set for all visited nodes to check against
                 Set<Node> visited = new HashSet<>();
 
-                // Some arbitrary value to denote infinity
-                long infDistance = 999999999;
+                // Some value to denote infinity
+                long infDistance = Integer.MAX_VALUE;
 
                 // Initialize the map with the infinite values, add the start node
                 // with distance value 0 (long)
